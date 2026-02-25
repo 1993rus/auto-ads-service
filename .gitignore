@@ -1,0 +1,156 @@
+# ===================================
+# Безопасность - НЕ коммитить!
+# ===================================
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# API Keys и секреты
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+credentials/
+
+# Database dumps
+*.sql
+*.sqlite
+*.db
+
+# ===================================
+# Документация для Claude Code
+# ===================================
+
+# Файлы только для локальной разработки с Claude
+CLAUDE.md
+PROGRESS.md
+IMPLEMENTATION_PLAN.md
+
+# Тестовые отчёты и результаты (опционально)
+# Раскомментируйте, если не хотите их коммитить
+# server/tests/REPORT.md
+# server/tests/SUMMARY.md
+# server/tests/FIXES.md
+# server/tests/TEST-RESULTS.txt
+# server/tests/debug-*.js
+
+# ===================================
+# Dependencies
+# ===================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ===================================
+# Build output
+# ===================================
+
+dist/
+dist-ssr/
+build/
+*.local
+.cache/
+
+# ===================================
+# Logs
+# ===================================
+
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ===================================
+# Editor & IDE
+# ===================================
+
+# VSCode
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ===================================
+# OS files
+# ===================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ===================================
+# Temporary files
+# ===================================
+
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.cache
+
+# ===================================
+# Testing & Coverage
+# ===================================
+
+coverage/
+.nyc_output/
+*.lcov
+
+# ===================================
+# Docker
+# ===================================
+
+# Не игнорируем Dockerfile и docker-compose
+# docker-compose.override.yml можно игнорировать
+docker-compose.override.yml
+
+# ===================================
+# Misc
+# ===================================
+
+.vercel
+.netlify
+.output
+.nuxt
+.next
+.turbo
