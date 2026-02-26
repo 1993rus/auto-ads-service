@@ -1,6 +1,7 @@
 import type React from "react";
 import type { User } from "../../types";
 import { NavLink, useNavigate } from "react-router-dom";
+import { $api } from "../../utils/axios.instance";
 
 
 
@@ -13,7 +14,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, setUser }) => {
     const navigate = useNavigate()
 
     const logoutHandler = () : void => {
-        $api('/users/logout')
+        $api.post('/users/logout')
          .then((res) => {
             if (res.status === 200) {
                 setUser(null)
@@ -29,6 +30,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, setUser }) => {
                 user ? (
                     <>
                         <NavLink to='/main'>Главная</NavLink>
+                        <NavLink to='/cars'>Автомобили</NavLink>
                         <button onClick={logoutHandler}>Выход</button>
                     </>
                 ) : (

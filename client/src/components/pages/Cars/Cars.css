@@ -1,0 +1,30 @@
+.cars-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.cars-container h1 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, 0.87);
+}
+
+.cars-loading,
+.cars-error,
+.cars-empty {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.cars-error {
+    color: #ff6b6b;
+}
+
+.cars-count {
+    margin: 1.5rem 0;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+}

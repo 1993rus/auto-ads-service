@@ -6,6 +6,8 @@ import Home from "./components/pages/Home/Home.tsx";
 import Registration from "./components/pages/Registration/Registration.tsx";
 import Login from "./components/pages/Login/Login.tsx";
 import Main from "./components/pages/Main/Main.tsx";
+import Cars from "./components/pages/Cars/Cars.tsx";
+import CarDetails from "./components/pages/CarDetails/CarDetails.tsx";
 import ProtectedRoute from "./components/common/ProtectedRoute/ProtectedRoute.tsx";
 
 const router = createBrowserRouter([
@@ -27,9 +29,23 @@ const router = createBrowserRouter([
       },
       {
         path:'/main',
-        element: 
+        element:
         <ProtectedRoute>
-          <Main/>,
+          <Main/>
+        </ProtectedRoute>
+      },
+      {
+        path:'/cars',
+        element:
+        <ProtectedRoute>
+          <Cars/>
+        </ProtectedRoute>
+      },
+      {
+        path:'/cars/:id',
+        element:
+        <ProtectedRoute>
+          <CarDetails/>
         </ProtectedRoute>
       },
     ]

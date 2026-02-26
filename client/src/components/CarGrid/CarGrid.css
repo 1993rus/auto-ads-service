@@ -1,0 +1,12 @@
+.car-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+@media (max-width: 768px) {
+    .car-grid {
+        grid-template-columns: 1fr;
+    }
+}

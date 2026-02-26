@@ -21,8 +21,8 @@ const Registration: React.FC = () => {
          .then((res) => {
             console.log('Response:', res.data);
             setAccessToken(res.data.accessToken)
+            setUser(res.data.user)
             navigate('/main')
-        
          })
          .catch(err => {
             console.log('Что-то пошло не так: ', err.response.data || err.message);

@@ -75,7 +75,8 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true
       }
     },
-    last_scraped_at: DataTypes.DATE
+    last_scraped_at: DataTypes.DATE,
+    cached_at: DataTypes.DATE
   }, {
     sequelize,
     modelName: 'Car',

@@ -3,13 +3,19 @@ const jwt = require('jsonwebtoken')
 
 const verifyAccessToken = (req, res, next) => {
     try {
-        const accessToken = req.headers.authorization.split(' ')[1]
+        const authHeader = req.headers.authorization
+
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ error: "Токен не предоставлен" })
+        }
+
+        const accessToken = authHeader.split(' ')[1]
         const { user } = jwt.verify(accessToken, process.env.ACCESS_SECRET_KEY)
         res.locals.user = user
         next()
     } catch (error) {
-        console.log("INVALID ACCESS TOKEN")
-        res.status.json({ error: "Недействительный токен" })
+        console.log("INVALID ACCESS TOKEN:", error.message)
+        res.status(401).json({ error: "Недействительный токен" })
     }
 }
 

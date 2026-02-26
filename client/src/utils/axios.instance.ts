@@ -10,3 +10,16 @@ let accessToken: string = ''
 export const setAccessToken = (newToken: string): void => {
     accessToken = newToken
 }
+
+// REQUEST INTERCEPTOR - добавляет Authorization header к каждому запросу
+$api.interceptors.request.use(
+    (config) => {
+        if (accessToken) {
+            config.headers.Authorization = `Bearer ${accessToken}`
+        }
+        return config
+    },
+    (error) => {
+        return Promise.reject(error)
+    }
+)

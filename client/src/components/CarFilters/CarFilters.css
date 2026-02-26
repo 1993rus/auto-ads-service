@@ -1,0 +1,86 @@
+.car-filters {
+    background-color: #1a1a1a;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 0.6em 0.8em;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: #242424;
+    color: rgba(255, 255, 255, 0.87);
+    font-size: 1em;
+    font-family: inherit;
+    transition: border-color 0.25s;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: #646cff;
+}
+
+.filter-group input:disabled,
+.filter-group select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.filter-group input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.filter-actions button {
+    min-width: 120px;
+}
+
+.filter-actions button[type="button"] {
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.filter-actions button[type="button"]:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .filters-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-actions {
+        flex-direction: column;
+    }
+
+    .filter-actions button {
+        width: 100%;
+    }
+}

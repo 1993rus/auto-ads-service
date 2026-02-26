@@ -3,6 +3,67 @@ const { Op } = require('sequelize');
 
 class CarService {
   /**
+   * Проверить валидность кеша
+   * @param {number} ttlMinutes - TTL кеша в минутах (по умолчанию 1)
+   * @returns {Promise<boolean>}
+   */
+  async isCacheValid(ttlMinutes = 1) {
+    try {
+      const thresholdDate = new Date(Date.now() - ttlMinutes * 60 * 1000);
+
+      const validCacheCount = await Car.count({
+        where: {
+          cached_at: { [Op.gte]: thresholdDate }
+        }
+      });
+
+      return validCacheCount > 0;
+    } catch (error) {
+      console.error('Error checking cache validity:', error.message);
+      return false;
+    }
+  }
+
+  /**
+   * Обновить кеш - очистить таблицу и вставить новые данные
+   * @param {Array} carsData - массив данных автомобилей
+   * @returns {Promise<number>} количество добавленных записей
+   */
+  async refreshCache(carsData) {
+    try {
+      // Очищаем таблицу
+      await Car.destroy({ where: {}, truncate: true });
+
+      // Дедуплицируем по external_id
+      const uniqueCars = [];
+      const seenIds = new Set();
+
+      for (const car of carsData) {
+        if (!seenIds.has(car.external_id)) {
+          seenIds.add(car.external_id);
+          uniqueCars.push(car);
+        }
+      }
+
+      // Добавляем cached_at ко всем записям
+      const carsWithCache = uniqueCars.map(car => ({
+        ...car,
+        cached_at: new Date(),
+        last_scraped_at: new Date()
+      }));
+
+      // Вставляем новые данные
+      const createdCars = await Car.bulkCreate(carsWithCache);
+
+      console.log(`✅ Cache refreshed: ${createdCars.length} cars added (${carsData.length - uniqueCars.length} duplicates removed)`);
+      return createdCars.length;
+    } catch (error) {
+      console.error('Error refreshing cache:', error.message);
+      throw error;
+    }
+  }
+
+  /**
    * Upsert автомобиля - обновить существующий или создать новый
    * @param {Object} carData - данные автомобиля
    * @returns {Object} { created: boolean, car: Car }
@@ -20,17 +81,26 @@ class CarService {
 
         if (hasChanges) {
           // Обновляем существующий
-          await existingCar.update(carData);
+          await existingCar.update({
+            ...carData,
+            cached_at: new Date()
+          });
           return { created: false, updated: true, car: existingCar };
         }
 
-        // Обновляем только last_scraped_at
-        await existingCar.update({ last_scraped_at: new Date() });
+        // Обновляем только last_scraped_at и cached_at
+        await existingCar.update({
+          last_scraped_at: new Date(),
+          cached_at: new Date()
+        });
         return { created: false, updated: false, car: existingCar };
       }
 
       // Создаём новый
-      const newCar = await Car.create(carData);
+      const newCar = await Car.create({
+        ...carData,
+        cached_at: new Date()
+      });
       return { created: true, updated: false, car: newCar };
 
     } catch (error) {
@@ -209,30 +279,102 @@ class CarService {
   }
 
   /**
-   * Получить статистику автомобилей
+   * Получить статистику автомобилей для фильтров
    */
   async getStats() {
     try {
-      const total = await Car.count();
+      // Получаем уникальные бренды
+      const brandsData = await Car.findAll({
+        attributes: [[Car.sequelize.fn('DISTINCT', Car.sequelize.col('brand')), 'brand']],
+        where: { brand: { [Op.ne]: null } },
+        order: [['brand', 'ASC']],
+        raw: true
+      });
+      const brands = brandsData.map(item => item.brand);
 
-      const byBrand = await Car.findAll({
+      // Получаем модели сгруппированные по брендам
+      const modelsData = await Car.findAll({
+        attributes: ['brand', 'model'],
+        where: {
+          brand: { [Op.ne]: null },
+          model: { [Op.ne]: null }
+        },
+        group: ['brand', 'model'],
+        order: [['brand', 'ASC'], ['model', 'ASC']],
+        raw: true
+      });
+
+      const models = {};
+      modelsData.forEach(item => {
+        if (!models[item.brand]) {
+          models[item.brand] = [];
+        }
+        if (!models[item.brand].includes(item.model)) {
+          models[item.brand].push(item.model);
+        }
+      });
+
+      // Получаем уникальные цвета
+      const colorsData = await Car.findAll({
+        attributes: [[Car.sequelize.fn('DISTINCT', Car.sequelize.col('color')), 'color']],
+        where: { color: { [Op.ne]: null } },
+        order: [['color', 'ASC']],
+        raw: true
+      });
+      const colors = colorsData.map(item => item.color);
+
+      // Получаем уникальные типы КПП
+      const transmissionsData = await Car.findAll({
+        attributes: [[Car.sequelize.fn('DISTINCT', Car.sequelize.col('transmission')), 'transmission']],
+        where: { transmission: { [Op.ne]: null } },
+        order: [['transmission', 'ASC']],
+        raw: true
+      });
+      const transmissions = transmissionsData.map(item => item.transmission);
+
+      // Получаем уникальные типы топлива
+      const fuelTypesData = await Car.findAll({
+        attributes: [[Car.sequelize.fn('DISTINCT', Car.sequelize.col('fuel_type')), 'fuel_type']],
+        where: { fuel_type: { [Op.ne]: null } },
+        order: [['fuel_type', 'ASC']],
+        raw: true
+      });
+      const fuelTypes = fuelTypesData.map(item => item.fuel_type);
+
+      // Получаем диапазон цен
+      const priceData = await Car.findOne({
         attributes: [
-          'brand',
-          [Car.sequelize.fn('COUNT', '*'), 'count']
+          [Car.sequelize.fn('MIN', Car.sequelize.col('price')), 'min'],
+          [Car.sequelize.fn('MAX', Car.sequelize.col('price')), 'max']
         ],
-        group: ['brand'],
-        order: [[Car.sequelize.fn('COUNT', '*'), 'DESC']],
-        limit: 10
+        raw: true
       });
+      const priceRange = {
+        min: parseFloat(priceData?.min) || 0,
+        max: parseFloat(priceData?.max) || 0
+      };
 
-      const avgPrice = await Car.findOne({
-        attributes: [[Car.sequelize.fn('AVG', Car.sequelize.col('price')), 'avg_price']]
+      // Получаем диапазон годов
+      const yearData = await Car.findOne({
+        attributes: [
+          [Car.sequelize.fn('MIN', Car.sequelize.col('year')), 'min'],
+          [Car.sequelize.fn('MAX', Car.sequelize.col('year')), 'max']
+        ],
+        raw: true
       });
+      const yearRange = {
+        min: parseInt(yearData?.min) || 0,
+        max: parseInt(yearData?.max) || 0
+      };
 
       return {
-        total,
-        topBrands: byBrand,
-        averagePrice: avgPrice?.get('avg_price') || 0
+        brands,
+        models,
+        colors,
+        transmissions,
+        fuelTypes,
+        priceRange,
+        yearRange
       };
     } catch (error) {
       console.error('Error getting stats:', error.message);

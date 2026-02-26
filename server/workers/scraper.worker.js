@@ -50,10 +50,13 @@ class ScraperWorker {
       let allCars = [];
 
       // Скрапим каждую страницу
+      // withImages=true для автоматической загрузки изображений
+      const withImages = process.env.SCRAPER_WITH_IMAGES !== 'false'; // По умолчанию true
+
       for (const url of searchUrls) {
         try {
-          console.log(`📄 Scraping: ${url}`);
-          const cars = await scraperService.scrapeSearchPage(url);
+          console.log(`📄 Scraping: ${url} (images: ${withImages ? 'yes' : 'no'})`);
+          const cars = await scraperService.scrapeSearchPage(url, withImages);
           allCars = allCars.concat(cars);
 
           // Задержка между страницами, чтобы не перегружать сервер
